@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Claude Verifier · Authenticity probe for Claude / Anthropic-compatible endpoints</title>
+  <meta name="description" content="Open-source desktop app that probes any /v1/messages endpoint with 47 prompts to verify whether it is genuinely Claude (Anthropic) or a proxy / wrapper / different model." />
+  <meta name="keywords" content="claude verifier, anthropic, llm proxy detection, ai model verification, llm testing, claude code, ai authenticity, model fingerprint, llm gateway audit, prompt testing, vendor evaluation, ai safety, open source ai tools" />
+  <meta name="author" content="Claude Verifier contributors" />
+  <meta name="theme-color" content="#0a0e17" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+
+  <!-- ─── Header ─── -->
+  <header class="header">
+    <div class="brand">
+      <span class="logo">◆</span>
+      <div class="brand-text">
+        <h1>Claude Verifier</h1>
+        <p class="sub">Authenticity &amp; behavior probe for Claude-compatible endpoints</p>
+      </div>
+    </div>
+    <button id="btn-theme" class="icon-btn" title="Toggle light/dark theme">☾</button>
+    <div id="status-pill" class="status-pill">
+      <span class="dot" id="status-dot"></span>
+      <span id="status-text">Ready · paste API key + pick tests</span>
+    </div>
+  </header>
+
+  <!-- ─── Connection card ─── -->
+  <section class="card">
+    <div class="card-head">
+      <span class="badge accent">CONNECTION</span>
+      <span class="card-sub">point at any <code>/v1/messages</code> endpoint</span>
+    </div>
+    <div class="card-body grid-2">
+      <div>
+        <label class="field-label">ENDPOINT  <span class="hint">— base URL is enough · pick a saved endpoint to auto-fill key/model</span></label>
+        <input type="text" id="endpoint" class="mono"
+               list="endpoint-list"
+               value="https://api.anthropic.com"
+               placeholder="https://api.anthropic.com"
+               spellcheck="false" autocomplete="off" />
+        <datalist id="endpoint-list"></datalist>
+
+        <label class="field-label mt-12">API KEY</label>
+        <div class="key-row">
+          <input type="password" id="apikey" class="mono" placeholder="sk-ant-..." spellcheck="false" />
+          <label class="show-key">
+            <input type="checkbox" id="show-key" /> show
+          </label>
+        </div>
+      </div>
+      <div>
+        <label class="field-label">MODEL</label>
+        <input type="text" id="model" class="mono" list="model-list" value="claude-opus-4-7" spellcheck="false" />
+        <datalist id="model-list">
+          <option value="claude-opus-4-7"></option>
+          <option value="claude-opus-4-1"></option>
+          <option value="claude-sonnet-4-6"></option>
+          <option value="claude-sonnet-4-5"></option>
+          <option value="claude-haiku-4-5"></option>
+          <option value="claude-3-5-sonnet-latest"></option>
+          <option value="claude-3-5-haiku-latest"></option>
+          <option value="claude-3-opus-latest"></option>
+        </datalist>
+
+        <label class="field-label mt-12">MAX TOKENS</label>
+        <input type="number" id="max-tokens" class="mono" min="64" max="4096" step="64" value="600" />
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── Action bar ─── -->
+  <!-- Intentionally minimal: pick tests (or none → runs ALL), press Run. -->
+  <!-- When a run finishes the report is auto-saved locally AND published -->
+  <!-- to a paste host; the URL is copied to clipboard.                   -->
+  <div class="action-bar">
+    <button class="btn primary" id="btn-run-selected" title="Run only the tests you've ticked in the catalog">▶  Run selected</button>
+    <button class="btn ghost"   id="btn-run-all"      title="Run every test in the catalog">▶▶  Run ALL</button>
+    <button class="btn stop"    id="btn-stop" disabled>■  Stop</button>
+    <button class="btn primary" id="btn-resume" hidden title="Continue the stopped run from where it left off — only the remaining probes will run">↻  Resume</button>
+    <button class="btn ghost"   id="btn-test-conn"    title="Send a tiny probe (≈ 8 tokens) to confirm endpoint + key + model work, without running a full suite">◯  Test connection</button>
+    <button class="btn tiny"    id="btn-clear">Clear</button>
+    <div class="spacer"></div>
+    <span id="last-report-link" class="last-report" hidden></span>
+  </div>
+
+  <!-- ─── Main body ─── -->
+  <main class="body">
+    <!-- left: test catalog -->
+    <aside class="catalog card">
+      <div class="card-head">
+        <span class="badge accent">TEST CATALOG</span>
+        <span class="card-sub" id="probe-count"></span>
+        <div class="catalog-tools">
+          <button class="btn tiny" id="btn-config-import"
+                  title="Load a probe pack JSON (community-shared probe definitions). New probes get added to your catalog and persist in &lt;project&gt;/data/custom-probes.json.">⬆ Import</button>
+          <button class="btn tiny" id="btn-config-export"
+                  title="Export the catalog as a portable probe pack. If any probes are ticked, only the selection is exported; otherwise the full catalog ships.">⬇ Export</button>
+        </div>
+      </div>
+      <div class="preset-strip" id="presets"></div>
+      <div id="catalog-list" class="catalog-scroll"></div>
+    </aside>
+
+    <div id="catalog-resizer" class="resizer" title="Drag to resize the catalog"></div>
+
+    <!-- right: tabs -->
+    <section class="tabs-wrap">
+      <nav class="tabs">
+        <button class="tab active" data-tab="chat">💬 Chat</button>
+        <button class="tab" data-tab="results">Results <span id="results-count" class="count"></span></button>
+        <button class="tab" data-tab="detail">Detail</button>
+        <button class="tab" data-tab="console">Console</button>
+        <button class="tab" data-tab="summary">Summary</button>
+        <button class="tab" data-tab="history">📜 History</button>
+      </nav>
+
+      <!-- Chat tab -->
+      <div class="tab-pane active" data-pane="chat">
+        <div class="chat-toolbar">
+          <span class="badge accent">FREE-FORM CHAT</span>
+          <span class="card-sub">requests go to the endpoint above</span>
+          <div class="spacer"></div>
+          <label class="switch"><input type="checkbox" id="multi-turn" checked /> multi-turn</label>
+          <button class="btn tiny" id="btn-clear-chat">Clear chat</button>
+        </div>
+        <div class="chip-card">
+          <div class="badge muted">QUICK PROBES</div>
+          <div class="chips" id="chips"></div>
+        </div>
+        <div class="transcript" id="transcript">
+          <div class="meta">New session. Tap a chip or type below. Enter sends · Shift+Enter = newline.</div>
+        </div>
+        <div class="composer">
+          <textarea id="chat-input" rows="3" placeholder="Type a prompt…  (Enter to send · Shift+Enter for newline)"></textarea>
+          <button class="btn primary" id="btn-send">Send  ▶</button>
+        </div>
+      </div>
+
+      <!-- Results tab -->
+      <div class="tab-pane" data-pane="results">
+        <div class="verdict-filters" id="verdict-filters">
+          <span class="muted">Filter:</span>
+          <label class="verdict-toggle PASS"      ><input type="checkbox" data-verdict="PASS" checked /><span>✅ PASS</span></label>
+          <label class="verdict-toggle SUSPICIOUS"><input type="checkbox" data-verdict="SUSPICIOUS" checked /><span>⚠️ SUSPICIOUS</span></label>
+          <label class="verdict-toggle FAIL"      ><input type="checkbox" data-verdict="FAIL" checked /><span>❌ FAIL</span></label>
+          <label class="verdict-toggle INFO"      ><input type="checkbox" data-verdict="INFO" checked /><span>ℹ️ INFO</span></label>
+          <div class="spacer"></div>
+          <span class="muted" id="results-shown-count"></span>
+        </div>
+        <div class="results-scroll">
+          <table class="results-table">
+            <thead>
+              <tr>
+                <th>Time</th><th>Category</th><th>Test</th><th>Verdict</th>
+                <th>Model reported</th><th>Latency</th><th>Notes</th>
+              </tr>
+            </thead>
+            <tbody id="results-body"></tbody>
+          </table>
+          <div id="results-empty" class="empty">
+            <p>No results yet.</p>
+            <p class="hint-line">Tip → pick a preset chip (e.g. <b>⚡ Smoke</b> = ~30s) and press <b>▶ Run selected</b>, or just press <b>▶▶ Run ALL</b>.</p>
+            <p class="hint-line muted">When the run finishes, the MD report is saved locally and a shareable URL is copied to your clipboard automatically.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Detail tab -->
+      <div class="tab-pane" data-pane="detail">
+        <div class="badge accent">PROMPT</div>
+        <pre id="detail-prompt" class="detail-box" data-empty="Click a row in the Results tab to see the prompt that was sent."></pre>
+        <div class="badge accent" style="margin-top:14px">RESPONSE</div>
+        <pre id="detail-response" class="detail-box detail-tall" data-empty="…and the response that came back, with the verdict + sandbox info."></pre>
+      </div>
+
+      <!-- Console tab -->
+      <div class="tab-pane" data-pane="console">
+        <div class="console-toolbar">
+          <span class="badge accent">CONSOLE LOG</span>
+          <span class="card-sub">streaming output from runs &amp; connection tests</span>
+          <div class="spacer"></div>
+          <button class="btn tiny" id="btn-clear-log">Clear log</button>
+        </div>
+        <div id="console" class="console"></div>
+      </div>
+
+      <!-- Summary tab -->
+      <div class="tab-pane" data-pane="summary">
+        <div id="summary" class="summary" data-empty="A verdict summary appears here once a run finishes. The shareable report URL also lands on your clipboard automatically."></div>
+      </div>
+
+      <!-- History tab -->
+      <div class="tab-pane" data-pane="history">
+        <div class="history-toolbar">
+          <span class="badge accent">REPORT HISTORY</span>
+          <span class="card-sub" id="history-meta">past runs auto-saved to <code>reports/</code></span>
+          <div class="spacer"></div>
+          <button class="btn tiny" id="btn-history-refresh" title="Re-scan the reports folder">⟳ Refresh</button>
+        </div>
+        <div id="history-list" class="history-list" data-empty="No saved reports yet. Run a probe and the report will appear here after auto-finish."></div>
+      </div>
+    </section>
+  </main>
+
+  <div id="progress-bar"><div id="progress-fill"></div></div>
+
+  <script src="./tests.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>
