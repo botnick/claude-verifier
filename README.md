@@ -130,6 +130,24 @@ Grab the right one for your OS from the [latest release](https://github.com/botn
 - **Windows** — `Claude.Verifier-X.Y.Z-win-x64.exe` (NSIS installer) or `-portable.exe`
 - **Linux** — `Claude.Verifier-X.Y.Z-linux-x64.AppImage` or `.deb`
 
+> **⚠ macOS Gatekeeper note** — The published `.dmg` is **not signed with an
+> Apple Developer certificate** (the open-source project doesn't pay the
+> $99/year for one). After dragging the app into `/Applications`, Gatekeeper
+> may say *"Claude Verifier is damaged and can't be opened"*. Fix it with one
+> Terminal command (this is standard for unsigned macOS apps):
+>
+> ```bash
+> xattr -cr "/Applications/Claude Verifier.app"
+> ```
+>
+> This strips the download-quarantine attribute Apple stamps onto everything
+> not signed by a paid Developer ID. After running it, the app opens normally.
+> If you'd rather not run that command, build from source with `npm start`.
+
+> **⚠ Windows SmartScreen note** — The `.exe` is also unsigned. On first run
+> SmartScreen will warn "Windows protected your PC"; click **More info → Run
+> anyway**.
+
 ### macOS / Linux from source
 ```bash
 cd claude-verifier

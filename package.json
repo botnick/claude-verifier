@@ -94,6 +94,7 @@
         { "target": "tar.gz",   "arch": ["x64"] }
       ],
       "category": "Development",
+      "maintainer": "botnick <botnick.xxx@gmail.com>",
       "synopsis": "Authenticity probe for Claude-compatible endpoints"
     },
     "publish": {
