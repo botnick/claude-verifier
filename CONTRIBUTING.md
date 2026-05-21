@@ -50,11 +50,14 @@ repo's Discussions tab, your blog, a Discord channel — wherever).
 
 1. **Fork** and clone.
 2. **Add your probes** to `public/tests.js` (same shape as existing probes).
-3. **Add 5 golden samples** for each new probe — edit `tools/seed-golden.js`
-   and add an entry to `SAMPLES` keyed by your probe id. This is what makes
-   the similarity comparison work; without samples, your probe still runs,
-   just without a similarity score.
-4. Run `node tools/seed-golden.js` to regenerate `data/golden.json`.
+3. **Refresh the golden baseline** so the similarity comparison covers
+   your new probes:
+   ```bash
+   ANTHROPIC_API_KEY=sk-ant-... npm run build-golden
+   ```
+   The script runs each probe 5 times against the Anthropic API and writes
+   the result to `data/golden.json`. Commit the regenerated file in the
+   same PR as the probe change.
 5. **Verify**: `npm start`, run the smoke preset, check the new probes
    appear and behave.
 6. Open a PR with:

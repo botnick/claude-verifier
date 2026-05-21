@@ -1502,7 +1502,7 @@ function init() {
         const note = r.data.curated_by_model ? " (curated)" : " (live-measured)";
         consoleLog(`🎯 Golden baseline loaded: ${n} probes × ${r.data.samples_per_probe} samples${note}\n`, "ok");
       } else if (r.error === "not_found") {
-        consoleLog(`ℹ️ No golden baseline at data/golden.json. Run \`node tools/seed-golden.js\` (curated) or \`npm run build-golden\` (live API, needs key) to create one.\n`, "muted");
+        consoleLog(`ℹ️ No golden baseline at data/golden.json. Run \`ANTHROPIC_API_KEY=... npm run build-golden\` to create one.\n`, "muted");
       } else {
         consoleLog(`⚠ Couldn't load golden: ${r.error}\n`, "warn");
       }

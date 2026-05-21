@@ -33,7 +33,6 @@
   "scripts": {
     "start": "electron .",
     "build-golden": "node tools/build-golden.js",
-    "seed-golden": "node tools/seed-golden.js",
     "pack": "electron-builder --dir",
     "dist": "electron-builder",
     "dist:mac": "electron-builder --mac",

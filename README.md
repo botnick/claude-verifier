@@ -219,15 +219,12 @@ shows per-probe `mean / max / min` and an aggregate "Avg golden similarity"
 row with a verdict tag (✅ close · ⚠️ partially diverging · ⛔ clearly
 different).
 
-The repo ships with a curated baseline (samples written by Claude itself,
-marked `curated_by_model: true`). You can regenerate either flavor:
+The repo ships with a baseline (`data/golden.json`). Regenerate it with
+live samples whenever you want:
 
 ```bash
-# Curated (no API key needed)
-node tools/seed-golden.js
-
-# Live-measured (5 samples × 47 probes against the real Anthropic API)
 ANTHROPIC_API_KEY=sk-ant-... npm run build-golden
+# 5 samples × 47 probes against the real Anthropic Messages API
 ```
 
 Optional env for `build-golden`: `GOLDEN_MODEL`, `GOLDEN_SAMPLES`,
@@ -279,8 +276,7 @@ claude-verifier/
 │   ├── tests.js            # shared probe catalog (47 probes)
 │   └── app.js              # renderer: run loop, judge, MD report, UI
 ├── tools/
-│   ├── build-golden.js     # generator using real Anthropic API
-│   └── seed-golden.js      # generator using curated samples
+│   └── build-golden.js     # baseline generator (real Anthropic API)
 ├── data/                   # baseline + user-imported probes
 │   ├── golden.json
 │   └── custom-probes.json  # created on first import
@@ -303,8 +299,8 @@ proxies, LiteLLM with the Anthropic adapter, internal gateways, etc.
 This project is **MIT-licensed**. Contributions welcome — especially:
 
 - **New probes** — add to `public/tests.js` (or share as a probe pack JSON).
-  If you add a probe, also add 5 baseline samples to `tools/seed-golden.js`
-  so it ships with golden similarity.
+  If you add a probe, rerun `npm run build-golden` against the Anthropic
+  API to refresh `data/golden.json` so similarity comparison covers it.
 - **Localized probes** — TH / ZH / EN versions are great. Other languages
   welcome.
 - **Heuristic tuning** — `expect_any` / `red_flag` keyword lists are the
@@ -315,7 +311,7 @@ When developing:
 
 ```bash
 npm start                          # launch the app
-node tools/seed-golden.js          # regenerate curated baseline
+ANTHROPIC_API_KEY=sk-... npm run build-golden   # regenerate baseline
 node --check public/app.js         # parse-check after edits (no test suite)
 ```
 

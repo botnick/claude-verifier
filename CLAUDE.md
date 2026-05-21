@@ -8,8 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ./run.sh                          # macOS / Linux — installs deps on first run, then npm start
 run.bat                           # Windows equivalent
 npm start                         # direct launch (assumes `npm install` already ran)
-node tools/seed-golden.js         # rebuild data/golden.json from curated samples
-ANTHROPIC_API_KEY=... npm run build-golden    # rebuild data/golden.json from real API
+ANTHROPIC_API_KEY=... npm run build-golden    # rebuild data/golden.json from real Anthropic API
 ```
 
 There is no build step, no test runner, and no linter. Electron is the only runtime dependency. Requires Node 18+.
@@ -32,10 +31,9 @@ Six files matter; the rest are presentation:
 
 - **`main.js`** — Electron main process. BrowserWindow + IPC. All network egress (chat probes, paste-host uploads) happens here so the API key never touches a renderer/web origin and CORS doesn't apply.
 - **`preload.js`** — `contextBridge` exposes a minimal typed `window.api` surface (`chat`, `saveFile`, `saveMdAuto`, `openFile`, `loadGolden`, `loadCustomProbes`, `saveCustomProbes`, `pushMd`, `platform`). The renderer has no Node access.
-- **`public/tests.js`** — Probe catalog (47 probes). Loaded as a classic `<script>` so it becomes a top-level `const TESTS` for the renderer, AND it ships a Node `module.exports` footer so `tools/build-golden.js` and `tools/seed-golden.js` can require the same source of truth.
+- **`public/tests.js`** — Probe catalog (47 probes). Loaded as a classic `<script>` so it becomes a top-level `const TESTS` for the renderer, AND it ships a Node `module.exports` footer so `tools/build-golden.js` can require the same source of truth.
 - **`public/app.js`** — Renderer. Run loop with parallel concurrency + Stop/Resume, `judge()` verdict logic with confidence, MD report builder, auto-finish (save + push + clipboard), golden similarity, probe pack import/export.
-- **`tools/build-golden.js`** — Live API baseline generator. Reads `public/tests.js`, runs each probe N times against `api.anthropic.com`, writes `data/golden.json`. Requires `ANTHROPIC_API_KEY`.
-- **`tools/seed-golden.js`** — Curated baseline generator. Same output format as build-golden, but samples are hand-written; produces `data/golden.json` with `curated_by_model: true`. Used when no API key is available.
+- **`tools/build-golden.js`** — Baseline generator. Reads `public/tests.js`, runs each probe N times against the real Anthropic API, writes `data/golden.json`. Requires `ANTHROPIC_API_KEY`.
 
 ### Claude Code request emulation (load-bearing)
 
@@ -78,7 +76,7 @@ Optional reference dataset at `data/golden.json` (shape: `{ version, model, samp
 - **`similarity()`** — character-bigram cosine. Language-agnostic (works for Thai / Chinese / Arabic without tokenizers), no deps, range `[0, 1]`. Defined in `public/app.js`.
 - **Thresholds** the renderer treats as semantic: `≥ 0.6` close to genuine · `≥ 0.35` partially diverging · `< 0.35` clearly different. Surfaced as colored `golden-sim` in the Console log during runs, in the Detail tab, and in the MD report (per-test + aggregate row).
 
-**User-added probes that aren't in golden have no baseline.** `compareToGolden()` returns `null`, every display site skips silently, nothing breaks. Adding baselines for new probes = edit `tools/seed-golden.js` SAMPLES map and rerun.
+**User-added probes that aren't in golden have no baseline.** `compareToGolden()` returns `null`, every display site skips silently, nothing breaks. Adding baselines for new probes = rerun `npm run build-golden` against the real Anthropic API after adding the probe to `public/tests.js`.
 
 ### Probe pack (community sharing)
 
