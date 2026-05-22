@@ -11,10 +11,9 @@
 > endpoint is genuinely Claude (Anthropic) — not a silently-swapped GPT-4o,
 > Qwen, DeepSeek, Llama, Gemini, Mistral, or other model behind a proxy.**
 
-**Keywords:** Claude verifier · Anthropic API audit · LLM proxy detection ·
-AI model authenticity · LLM gateway testing · Claude Code traffic ·
-prompt-based model fingerprinting · vendor evaluation · AI safety probe ·
-Bedrock/LiteLLM/OpenRouter verification.
+🌐 **[Live probe editor & docs →](https://botnick.github.io/claude-verifier/)**
+&nbsp;·&nbsp;
+📦 **[Download for macOS / Linux / Windows →](https://github.com/botnick/claude-verifier/releases/latest)**
 
 ---
 
