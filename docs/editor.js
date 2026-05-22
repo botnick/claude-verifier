@@ -9,7 +9,27 @@ const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
 
 const PROBE_PACK_FORMAT = "claude-verifier-probe-pack";
 const LS_CUSTOM = "cv_editor_custom_v1";
-const TESTS_URL = "https://raw.githubusercontent.com/botnick/claude-verifier/main/public/tests.js";
+
+// Derive owner/repo from the current location so a fork of this project
+// works without changing any source. On `<owner>.github.io/<repo>/...`,
+// this loads `<owner>/<repo>/main/public/tests.js`. For local dev served
+// from a different host (or file://), we fall back to a relative path.
+function deriveTestsUrls() {
+  const out = [];
+  const ghMatch = location.hostname.match(/^([^.]+)\.github\.io$/);
+  if (ghMatch) {
+    const owner = ghMatch[1];
+    const repo  = location.pathname.split("/").filter(Boolean)[0];
+    if (owner && repo) {
+      out.push(`https://raw.githubusercontent.com/${owner}/${repo}/main/public/tests.js`);
+      out.push(`https://raw.githubusercontent.com/${owner}/${repo}/HEAD/public/tests.js`);
+    }
+  }
+  // Local-dev / generic fallback: try a relative path (works if someone
+  // opens this file via `python3 -m http.server` from the repo root).
+  out.push("../public/tests.js");
+  return out;
+}
 
 const CAT_LABEL = {
   identity:   "Identity probes",
@@ -49,10 +69,7 @@ function parseTestsJs(source) {
 }
 
 async function loadBuiltIn() {
-  // Try GitHub raw first (so this works on github.io). Fall back to local
-  // ../public/tests.js for local dev.
-  const candidates = [TESTS_URL, "../public/tests.js"];
-  for (const url of candidates) {
+  for (const url of deriveTestsUrls()) {
     try {
       const res = await fetch(url);
       if (!res.ok) continue;
@@ -110,23 +127,36 @@ function renderList() {
     return;
   }
 
-  root.innerHTML = filtered.map(p => `
+  root.innerHTML = filtered.map(p => {
+    const expectChips = (p.expect_any || []).slice(0, 4).join(", ") + ((p.expect_any || []).length > 4 ? ` +${p.expect_any.length - 4}` : "");
+    const redChips    = (p.red_flag   || []).slice(0, 4).join(", ") + ((p.red_flag   || []).length > 4 ? ` +${p.red_flag.length - 4}`   : "");
+    return `
     <div class="probe-row ${p._custom ? "custom" : ""}" data-id="${escapeHtml(p.id)}">
-      <div>
-        <div class="title">
-          ${escapeHtml(p.title || p.id)}
-          <span class="cat ${escapeHtml(p.cat || "trick")}">${escapeHtml(p.cat || "—")}</span>
-          ${p._custom ? '<span class="cat" style="background: var(--accent-bg); color: var(--accent)">custom</span>' : ""}
-        </div>
-        <div class="prompt">${escapeHtml(p.prompt || "")}</div>
+      <div class="row-head">
+        <div class="title">${escapeHtml(p.title || p.id)}</div>
+        <span class="id-pill">${escapeHtml(p.id)}</span>
       </div>
-      <div class="actions">
-        <button data-act="edit"     title="Edit this probe">✎ Edit</button>
-        <button data-act="duplicate" title="Duplicate as new probe">⎘ Duplicate</button>
-        <button class="danger" data-act="delete" title="${p._custom ? "Delete this custom probe" : "Hide this built-in probe (creates a deletion marker)"}">🗑 Delete</button>
+      <div class="badges">
+        <span class="cat ${escapeHtml(p.cat || "trick")}">${escapeHtml(p.cat || "—")}</span>
+        ${p._custom ? '<span class="cat custom-tag"><iconify-icon icon="tabler:user-edit"></iconify-icon>custom</span>' : ""}
+      </div>
+      <div class="prompt">${escapeHtml(p.prompt || "")}</div>
+      <div class="keywords">
+        ${expectChips ? `<span class="kw expect" title="Expected (signals genuine Claude)"><iconify-icon icon="tabler:check"></iconify-icon>${escapeHtml(expectChips)}</span>` : ""}
+        ${redChips    ? `<span class="kw red"    title="Red flag (signals different / suppressed model)"><iconify-icon icon="tabler:alert-triangle"></iconify-icon>${escapeHtml(redChips)}</span>` : ""}
+      </div>
+      <div class="row-foot">
+        <span class="muted" style="font-size:11.5px">${p._custom ? "Local custom probe — edits persist in this browser." : "Built-in — duplicate to make an editable copy."}</span>
+        <span class="spacer"></span>
+        <div class="actions">
+          <button data-act="edit"      title="Edit this probe"><iconify-icon icon="tabler:pencil"></iconify-icon>Edit</button>
+          <button data-act="duplicate" title="Duplicate as new probe"><iconify-icon icon="tabler:copy"></iconify-icon>Duplicate</button>
+          <button class="danger" data-act="delete" title="${p._custom ? "Delete this custom probe" : "Built-in probes can only be unticked in the desktop app"}"><iconify-icon icon="tabler:trash"></iconify-icon>Delete</button>
+        </div>
       </div>
     </div>
-  `).join("");
+    `;
+  }).join("");
 
   // Wire row buttons
   $$(".probe-row").forEach(row => {
