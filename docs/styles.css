@@ -98,6 +98,22 @@ kbd {
   background: var(--card-hi); border: 1px solid var(--border-hi);
   border-bottom-width: 2px; border-radius: var(--r-sm);
   padding: 2px 8px; font-size: .85em; color: var(--text);
+  white-space: nowrap;   /* keep "↻ Resume" together — don't break inside the chip */
+  display: inline-block;
+}
+
+/* Inline <code> shouldn't break mid-token either; the parent paragraph
+   will wrap around them as units. Long URLs in <pre> blocks already get
+   their own wrap rules. */
+p code, li code, td code, .note-os code, .feature p code, .feature h3 code {
+  white-space: nowrap;
+}
+
+/* Feature card paragraphs: avoid auto-hyphenation, prefer balanced wrapping
+   when the browser supports it. */
+.feature p, .feature h3, .note-os, .platform .file {
+  hyphens: manual;
+  text-wrap: pretty;
 }
 
 /* ── top nav ── */
