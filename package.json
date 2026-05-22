@@ -33,11 +33,12 @@
   "scripts": {
     "start": "electron .",
     "build-golden": "node tools/build-golden.js",
+    "icon": "electron --no-sandbox tools/make-icon.js",
     "pack": "electron-builder --dir",
-    "dist": "electron-builder",
-    "dist:mac": "electron-builder --mac",
-    "dist:win": "electron-builder --win",
-    "dist:linux": "electron-builder --linux"
+    "dist": "electron-builder --publish never",
+    "dist:mac": "electron-builder --mac --publish never",
+    "dist:win": "electron-builder --win --publish never",
+    "dist:linux": "electron-builder --linux --publish never"
   },
   "devDependencies": {
     "electron": "^30.0.0",
@@ -64,6 +65,7 @@
     ],
     "mac": {
       "category": "public.app-category.developer-tools",
+      "icon": "build/icon.png",
       "target": [
         { "target": "dmg", "arch": ["x64", "arm64"] },
         { "target": "zip", "arch": ["x64", "arm64"] }
@@ -76,6 +78,7 @@
       "writeUpdateInfo": false
     },
     "win": {
+      "icon": "build/icon.png",
       "target": [
         { "target": "nsis", "arch": ["x64"] },
         { "target": "portable", "arch": ["x64"] }
@@ -88,6 +91,7 @@
       "perMachine": false
     },
     "linux": {
+      "icon": "build/icon.png",
       "target": [
         { "target": "AppImage", "arch": ["x64"] },
         { "target": "deb",      "arch": ["x64"] },
@@ -97,9 +101,6 @@
       "maintainer": "botnick <botnick.xxx@gmail.com>",
       "synopsis": "Authenticity probe for Claude-compatible endpoints"
     },
-    "publish": {
-      "provider": "github",
-      "releaseType": "release"
-    }
+    "publish": null
   }
 }
