@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  parse-check:
+    name: Parse-check JS sources
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Syntax-check every JS file
+        run: |
+          node --check main.js
+          node --check preload.js
+          node --check public/app.js
+          node --check public/tests.js
+          node --check tools/build-golden.js
+      - name: Verify tests catalog loads cleanly
+        run: |
+          node -e "const { TESTS } = require('./public/tests.js'); if (!Array.isArray(TESTS) || TESTS.length === 0) { console.error('TESTS is empty or missing'); process.exit(1); } console.log('OK: ' + TESTS.length + ' probes loaded');"
+      - name: Verify golden.json is valid
+        run: |
+          node -e "const g = JSON.parse(require('fs').readFileSync('data/golden.json','utf8')); const n = Object.keys(g.probes||{}).length; if (n < 1) { console.error('golden.json has no probes'); process.exit(1); } console.log('OK: ' + n + ' probes baselined');"

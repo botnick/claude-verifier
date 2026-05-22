@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Docs · Claude Verifier</title>
+<meta name="description" content="Documentation for Claude Verifier — architecture, sandbox mode, golden similarity, probe packs, keyboard shortcuts, contributing." />
+<link rel="canonical" href="https://botnick.github.io/claude-verifier/docs.html" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://botnick.github.io/claude-verifier/docs.html" />
+<meta property="og:title" content="Docs · Claude Verifier" />
+<meta property="og:description" content="Architecture, sandbox mode, golden similarity, probe pack format, keyboard shortcuts, contributing guide." />
+<meta property="og:site_name" content="Claude Verifier" />
+<meta name="twitter:card" content="summary" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230a0e17'/%3E%3Cpath d='M50 18 L82 50 L50 82 L18 50 Z' fill='%23f08a5f'/%3E%3C/svg%3E" />
+<script src="./theme.js"></script>
+<script src="https://code.iconify.design/iconify-icon/3.0.1/iconify-icon.min.js"></script>
+<link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="nav-brand" href="./"><span class="logo">◆</span><span>Claude Verifier</span></a>
+    <div class="nav-links">
+      <a href="./editor.html">Probe editor</a>
+      <a href="./docs.html" class="active">Docs</a>
+      <a href="https://github.com/botnick/claude-verifier" target="_blank" rel="noopener">GitHub</a>
+      <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme">☾</button>
+      <a class="nav-cta" href="https://github.com/botnick/claude-verifier/releases/latest" target="_blank" rel="noopener">Download</a>
+    </div>
+  </div>
+</nav>
+
+<div class="layout">
+
+  <aside class="sidebar">
+    <h4>Getting started</h4>
+    <a href="#overview">Overview</a>
+    <a href="#install">Install</a>
+    <a href="#quickstart">Quick start</a>
+    <a href="#shortcuts">Keyboard shortcuts</a>
+
+    <h4>How it works</h4>
+    <a href="#emulation">CC traffic emulation</a>
+    <a href="#sandbox">Sandbox fallback</a>
+    <a href="#verdict">Verdict + confidence</a>
+    <a href="#golden">Golden similarity</a>
+    <a href="#shape">Latency + shape signals</a>
+
+    <h4>Probes</h4>
+    <a href="#categories">Categories</a>
+    <a href="#probe-pack">Probe pack format</a>
+    <a href="#share">Share &amp; import</a>
+
+    <h4>Project</h4>
+    <a href="#folder">Project-folder rule</a>
+    <a href="#contributing">Contributing</a>
+    <a href="#license">License</a>
+  </aside>
+
+  <main class="content">
+
+<h1>Claude Verifier — docs</h1>
+<p>Open-source desktop app that probes any Anthropic-compatible <code>/v1/messages</code> endpoint with 47 prompts to verify whether it's genuinely Claude. macOS, Linux, and Windows binaries are auto-built on every release.</p>
+
+<h2 id="overview">Overview</h2>
+<p>LLM gateways and reseller proxies sometimes silently downgrade or swap the model behind a <code>claude-*</code> model id. This app hammers an endpoint with a curated suite of 47 prompts that expose identity, behavioral, and capability differences between Claude and other model families (GPT, Qwen, DeepSeek, Gemini, Llama, etc.) — then produces an evidence-rich Markdown report with a shareable URL.</p>
+
+<h2 id="install">Install</h2>
+<p>Grab a pre-built binary from <a href="https://github.com/botnick/claude-verifier/releases/latest" target="_blank" rel="noopener">the latest release</a>:</p>
+<table>
+  <thead><tr><th>OS</th><th>File</th></tr></thead>
+  <tbody>
+    <tr><td>macOS (Apple Silicon)</td><td><code>Claude.Verifier-1.0.0-mac-arm64.dmg</code></td></tr>
+    <tr><td>macOS (Intel)</td><td><code>Claude.Verifier-1.0.0-mac-x64.dmg</code></td></tr>
+    <tr><td>Windows</td><td><code>Claude.Verifier-1.0.0-win-x64.exe</code></td></tr>
+    <tr><td>Linux (universal)</td><td><code>Claude.Verifier-1.0.0-linux-x86_64.AppImage</code></td></tr>
+    <tr><td>Linux (Debian/Ubuntu)</td><td><code>Claude.Verifier-1.0.0-linux-amd64.deb</code></td></tr>
+  </tbody>
+</table>
+<blockquote><strong>macOS Gatekeeper note:</strong> The app isn't signed with an Apple Developer cert. After dragging it into <code>/Applications/</code>, run <code>xattr -cr "/Applications/Claude Verifier.app"</code> once in Terminal. On Windows, SmartScreen shows "Windows protected your PC" — click <strong>More info → Run anyway</strong>.</blockquote>
+<p>Or run from source:</p>
+<pre><code>git clone https://github.com/botnick/claude-verifier.git
+cd claude-verifier
+./run.sh           # macOS / Linux
+run.bat            # Windows</code></pre>
+
+<h2 id="quickstart">Quick start</h2>
+<ol>
+  <li>Paste your endpoint (default = Anthropic's <code>/v1/messages</code>) and API key.</li>
+  <li>Pick a model from the dropdown (or type any model identifier).</li>
+  <li>Click <kbd>◯ Test connection</kbd> to confirm credentials.</li>
+  <li>Tick probes in the <strong>Test Catalog</strong>, then <kbd>▶ Run selected</kbd> — or just <kbd>▶▶ Run ALL</kbd>.</li>
+  <li>When the run finishes the report is auto-saved to <code>reports/</code> and a shareable URL is copied to your clipboard.</li>
+</ol>
+
+<h2 id="shortcuts">Keyboard shortcuts</h2>
+<table>
+  <thead><tr><th>Key</th><th>Action</th></tr></thead>
+  <tbody>
+    <tr><td><kbd>⌘↩</kbd> / <kbd>Ctrl+Enter</kbd></td><td>Run selected</td></tr>
+    <tr><td><kbd>⇧⌘↩</kbd> / <kbd>Ctrl+Shift+Enter</kbd></td><td>Run ALL</td></tr>
+    <tr><td><kbd>Esc</kbd></td><td>Stop (when a run is in flight)</td></tr>
+    <tr><td><kbd>⌘K</kbd> / <kbd>Ctrl+K</kbd></td><td>Focus API key field</td></tr>
+    <tr><td><kbd>⌘L</kbd> / <kbd>Ctrl+L</kbd></td><td>Focus endpoint field</td></tr>
+  </tbody>
+</table>
+
+<h2 id="emulation">1:1 Claude Code traffic emulation</h2>
+<p>Every request matches real <code>claude-cli</code> traffic shape:</p>
+<ul>
+  <li><code>user-agent: claude-cli/&lt;ver&gt; (external, cli)</code></li>
+  <li><code>x-app: cli</code> + full <code>x-stainless-*</code> set (lang/os/arch/runtime/version)</li>
+  <li><code>anthropic-beta: prompt-caching-2024-07-31,fine-grained-tool-streaming-2025-05-14</code></li>
+  <li>A <code>system</code> block matching Claude Code's preamble</li>
+  <li><code>metadata.user_id = "user_" + sha256(api_key)</code></li>
+  <li>The full <code>tools</code> array (Bash, Read, Write, Edit, Glob, Grep, TodoWrite, WebFetch)</li>
+</ul>
+<p>Endpoints can't behave differently for "verifier" traffic vs genuine Claude Code traffic.</p>
+
+<h2 id="sandbox">Sandbox auto-fallback</h2>
+<p>Because we include <code>tools</code> on every request, the model sometimes replies with a pure <code>tool_use</code> turn (no text content) — which would leave the keyword verdict with nothing to match. The chat IPC handles this transparently:</p>
+<ol>
+  <li>Attempt 1: with full tools array (true 1:1 traffic).</li>
+  <li>If the response has only <code>tool_use</code> and no text → Attempt 2: same request without tools.</li>
+  <li>Result is returned with <code>sandboxed: true</code> and <code>sandbox_first_tools: [...]</code> so the Detail tab can surface "first reply was tool_use, retried without tools".</li>
+</ol>
+<p>Latency is summed across both attempts so the wall-clock cost is honest. The <code>text</code> field always reflects what the verdict matches against.</p>
+
+<h2 id="verdict">Verdict + confidence</h2>
+<p>Each probe carries two keyword lists. <code>judge(test, text)</code> returns a label + confidence in <code>[0, 1]</code>:</p>
+<table>
+  <thead><tr><th>Label</th><th>Triggered when…</th></tr></thead>
+  <tbody>
+    <tr><td><strong>PASS</strong></td><td>expected keywords found, no red flags</td></tr>
+    <tr><td><strong>SUSPICIOUS</strong></td><td>expected missing, OR both expected &amp; red flag present</td></tr>
+    <tr><td><strong>FAIL</strong></td><td>red flag found and no expected, OR request errored</td></tr>
+    <tr><td><strong>INFO</strong></td><td>informational probe with no scoring</td></tr>
+  </tbody>
+</table>
+
+<h2 id="golden">Golden similarity</h2>
+<p>An optional <code>data/golden.json</code> file contains 5 reference samples per probe. When loaded, every probe response is compared via character-bigram cosine similarity (language-agnostic, works for Thai/Chinese/Arabic without a tokenizer):</p>
+<ul>
+  <li><code>≥ 0.6</code> — ✅ close to genuine</li>
+  <li><code>≥ 0.35</code> — ⚠️ partially diverging</li>
+  <li><code>&lt; 0.35</code> — ⛔ clearly different</li>
+</ul>
+<p>Regenerate the baseline against real Claude any time:</p>
+<pre><code>ANTHROPIC_API_KEY=sk-ant-... npm run build-golden</code></pre>
+<p>User-added probes with no baseline are simply skipped — no crash, no dangling column.</p>
+
+<h2 id="shape">Latency + shape signals</h2>
+<p>Beyond keyword + similarity, the report shows two additional signals on the at-a-glance table:</p>
+<ul>
+  <li><strong>Latency coefficient-of-variation</strong> — <code>std / mean</code> across all probes. <code>CV &lt; 0.18</code> = suspiciously uniform latencies (proxy / cache hint); <code>CV &gt; 1.6</code> = highly variable.</li>
+  <li><strong>Avg chars-per-output-token</strong> — genuine Claude responses tend to ~3–6. Heavy skew is a tokenizer fingerprint.</li>
+  <li><strong>stop_reason mix</strong> — Claude almost always ends with <code>end_turn</code>. Lots of <code>max_tokens</code> or unusual values is a flag.</li>
+</ul>
+
+<h2 id="categories">Probe categories</h2>
+<table>
+  <thead><tr><th>Category</th><th>What it checks</th><th>#</th></tr></thead>
+  <tbody>
+    <tr><td>identity</td><td>Who the endpoint claims to be, cutoff, creator, training methodology, repeat-back trap.</td><td>6</td></tr>
+    <tr><td>jailbreak</td><td>DAN, "ignore previous instructions", grandma exploit, base64-encoded request, evil-twin roleplay.</td><td>5</td></tr>
+    <tr><td>china</td><td>Tiananmen, Taiwan, Xinjiang, Hong Kong, Xi, Falun Gong, Pooh — TH/ZH/EN.</td><td>15</td></tr>
+    <tr><td>trick</td><td>Flattery, system-prompt leak, infra probe, owner traps, forced choice, completion, wrapper, covert-token, CC echo.</td><td>15</td></tr>
+    <tr><td>capability</td><td>Math chain-of-thought, strict JSON, Thai language, Unicode round-trip, long-context needle.</td><td>6</td></tr>
+  </tbody>
+</table>
+
+<h2 id="probe-pack">Probe pack format</h2>
+<p>A "probe pack" is a portable JSON containing probe definitions. <strong>Endpoint, key, and model are never included</strong> — strictly probes + metadata:</p>
+<pre><code>{
+  "format": "claude-verifier-probe-pack",
+  "version": 1,
+  "name": "TH localization pack",
+  "description": "Probes that catch Thai-language proxies",
+  "probes": [
+    { "id": "th_register_formal",
+      "cat": "capability",
+      "title": "Formal Thai register",
+      "prompt": "ใช้ภาษาไทยทางการแบบกระทรวงพูดถึง...",
+      "expect_any": ["ครับ", "ค่ะ", "ดิฉัน"],
+      "red_flag":   [] }
+  ]
+}</code></pre>
+
+<h2 id="share">Share &amp; import probes</h2>
+<p>Two ways to participate without forking the repo:</p>
+<ol>
+  <li><strong>Web editor</strong>: open <a href="./editor.html">the editor</a>, add or edit probes, click <kbd>⬇ Export pack</kbd>. Share the JSON anywhere. Anyone can <kbd>⬆ Import</kbd> it back.</li>
+  <li><strong>Desktop app</strong>: same flow inside the app's catalog header. Imported probes persist in <code>data/custom-probes.json</code>.</li>
+</ol>
+<p>Built-in probes are immutable from the editor (you'd untick them in the desktop app to skip on a run). Custom probes show a <code>custom</code> badge and can be edited / deleted freely.</p>
+
+<h2 id="folder">Project-folder rule</h2>
+<p><strong>Everything this app produces stays inside the project directory.</strong> No <code>~/Documents</code>, no <code>app.getPath('userData')</code> for app-generated state, no <code>localStorage</code> for persistent user data:</p>
+<pre><code>&lt;project&gt;/data/golden.json         — reference baseline
+&lt;project&gt;/data/custom-probes.json  — user-imported probes
+&lt;project&gt;/reports/&lt;stamp&gt;.md       — auto-saved reports</code></pre>
+
+<h2 id="contributing">Contributing</h2>
+<p>The highest-leverage contribution is <strong>adding probes</strong>. The more high-signal questions, the harder it gets for a proxy to fake being Claude.</p>
+<p>Three ways:</p>
+<ul>
+  <li>🌐 Export a probe pack from <a href="./editor.html">the editor</a> and share the JSON in <a href="https://github.com/botnick/claude-verifier/discussions" target="_blank" rel="noopener">Discussions</a>.</li>
+  <li>🔀 Open a PR adding probes to <code>public/tests.js</code> + rerun <code>npm run build-golden</code> to refresh <code>data/golden.json</code>. See <a href="https://github.com/botnick/claude-verifier/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener">CONTRIBUTING.md</a>.</li>
+  <li>🐛 File issues describing endpoints that fool the current catalog so others can refine probes.</li>
+</ul>
+
+<h2 id="license">License</h2>
+<p>MIT — see <a href="https://github.com/botnick/claude-verifier/blob/main/LICENSE" target="_blank" rel="noopener">LICENSE</a>. Contribution implies you license your changes under the same terms.</p>
+
+  </main>
+</div>
+
+<footer class="footer container">
+  <p>MIT licensed · <a href="https://github.com/botnick/claude-verifier">GitHub</a></p>
+</footer>
+
+<script>
+  // Highlight active sidebar item as user scrolls.
+  const links = document.querySelectorAll('.sidebar a');
+  const map = new Map();
+  links.forEach(a => {
+    const id = a.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    if (el) map.set(el, a);
+  });
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        map.get(e.target)?.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-30% 0px -65% 0px' });
+  map.forEach((_, el) => obs.observe(el));
+</script>
+</body>
+</html>

@@ -1,0 +1,106 @@
+{
+  "name": "claude-verifier",
+  "version": "1.0.0",
+  "description": "Authenticity & behavior probe for Claude / Anthropic-compatible LLM endpoints — detect proxies, wrappers, and mis-routed models with 47 curated probes.",
+  "keywords": [
+    "claude",
+    "anthropic",
+    "llm",
+    "ai",
+    "verification",
+    "proxy-detection",
+    "model-fingerprint",
+    "ai-testing",
+    "llm-gateway",
+    "vendor-evaluation",
+    "ai-safety",
+    "prompt-testing",
+    "electron",
+    "desktop-app",
+    "open-source"
+  ],
+  "main": "main.js",
+  "homepage": "https://botnick.github.io/claude-verifier/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/botnick/claude-verifier.git"
+  },
+  "bugs": {
+    "url": "https://github.com/botnick/claude-verifier/issues"
+  },
+  "license": "MIT",
+  "private": false,
+  "scripts": {
+    "start": "electron .",
+    "build-golden": "node tools/build-golden.js",
+    "icon": "electron --no-sandbox tools/make-icon.js",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder --publish never",
+    "dist:mac": "electron-builder --mac --publish never",
+    "dist:win": "electron-builder --win --publish never",
+    "dist:linux": "electron-builder --linux --publish never"
+  },
+  "devDependencies": {
+    "electron": "^30.0.0",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.botnick.claude-verifier",
+    "productName": "Claude Verifier",
+    "artifactName": "${productName}-${version}-${os}-${arch}.${ext}",
+    "directories": {
+      "buildResources": "build",
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "public/**/*",
+      "data/golden.json",
+      "package.json",
+      "LICENSE"
+    ],
+    "extraResources": [
+      { "from": "data/golden.json", "to": "data/golden.json" }
+    ],
+    "mac": {
+      "category": "public.app-category.developer-tools",
+      "icon": "build/icon.png",
+      "target": [
+        { "target": "dmg", "arch": ["x64", "arm64"] },
+        { "target": "zip", "arch": ["x64", "arm64"] }
+      ],
+      "hardenedRuntime": false,
+      "gatekeeperAssess": false,
+      "identity": null
+    },
+    "dmg": {
+      "writeUpdateInfo": false
+    },
+    "win": {
+      "icon": "build/icon.png",
+      "target": [
+        { "target": "nsis", "arch": ["x64"] },
+        { "target": "portable", "arch": ["x64"] }
+      ],
+      "verifyUpdateCodeSignature": false
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "perMachine": false
+    },
+    "linux": {
+      "icon": "build/icon.png",
+      "target": [
+        { "target": "AppImage", "arch": ["x64"] },
+        { "target": "deb",      "arch": ["x64"] },
+        { "target": "tar.gz",   "arch": ["x64"] }
+      ],
+      "category": "Development",
+      "maintainer": "botnick <botnick.xxx@gmail.com>",
+      "synopsis": "Authenticity probe for Claude-compatible endpoints"
+    },
+    "publish": null
+  }
+}

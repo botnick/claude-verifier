@@ -1,0 +1,26 @@
+# Dependabot — keep npm + GitHub Actions deps fresh automatically.
+# Opens grouped PRs once a week so the queue stays manageable.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    groups:
+      electron:
+        patterns: ["electron*"]
+      dev-dependencies:
+        dependency-type: development
+        patterns: ["*"]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 3
+    groups:
+      actions:
+        patterns: ["*"]

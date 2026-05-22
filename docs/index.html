@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Claude Verifier — is your "Claude" endpoint actually Claude?</title>
+<meta name="description" content="Open-source cross-platform desktop app that probes any /v1/messages endpoint with 47 prompts to verify whether it is genuinely Claude (Anthropic) — and surfaces the evidence in a sharable Markdown report." />
+<link rel="canonical" href="https://botnick.github.io/claude-verifier/" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://botnick.github.io/claude-verifier/" />
+<meta property="og:title" content="Claude Verifier — is your “Claude” endpoint actually Claude?" />
+<meta property="og:description" content="Cross-platform open-source desktop app that verifies whether a /v1/messages endpoint is genuinely Claude — or a proxy serving GPT, Qwen, DeepSeek, Llama, Gemini, Mistral, etc." />
+<meta property="og:site_name" content="Claude Verifier" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:title" content="Claude Verifier — is your “Claude” endpoint actually Claude?" />
+<meta name="twitter:description" content="Probe any /v1/messages endpoint to verify it’s really Claude. 47 probes, sandbox fallback, golden similarity, MIT-licensed." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230a0e17'/%3E%3Cpath d='M50 18 L82 50 L50 82 L18 50 Z' fill='%23f08a5f'/%3E%3C/svg%3E" />
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Claude Verifier",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "macOS, Windows, Linux",
+  "description": "Cross-platform desktop app that probes any /v1/messages endpoint with 47 prompts to verify whether it is genuinely Claude (Anthropic).",
+  "url": "https://botnick.github.io/claude-verifier/",
+  "downloadUrl": "https://github.com/botnick/claude-verifier/releases/latest",
+  "license": "https://github.com/botnick/claude-verifier/blob/main/LICENSE",
+  "sameAs": "https://github.com/botnick/claude-verifier",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+}
+</script>
+<script src="./theme.js"></script>
+<script src="https://code.iconify.design/iconify-icon/3.0.1/iconify-icon.min.js"></script>
+<link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="nav-brand" href="./">
+      <span class="logo">◆</span>
+      <span>Claude Verifier</span>
+    </a>
+    <div class="nav-links">
+      <a href="./editor.html">Probe editor</a>
+      <a href="./docs.html">Docs</a>
+      <a href="https://github.com/botnick/claude-verifier" target="_blank" rel="noopener">GitHub</a>
+      <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme">☾</button>
+      <a class="nav-cta" href="https://github.com/botnick/claude-verifier/releases/latest" target="_blank" rel="noopener">Download</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <span class="tag">Open-source · MIT · 47 probes</span>
+  <h1>Is your <span class="accent-glow">"Claude"</span> endpoint<br/>actually Claude?</h1>
+  <p class="lead">
+    Cross-platform desktop app that probes any Anthropic-compatible
+    <code>/v1/messages</code> endpoint to verify whether it's genuinely
+    Claude — or a silently-swapped GPT, Qwen, DeepSeek, Llama, Gemini,
+    or other model behind a proxy.
+  </p>
+  <div class="hero-cta">
+    <a class="btn btn-primary" href="https://github.com/botnick/claude-verifier/releases/latest" target="_blank" rel="noopener"><iconify-icon icon="tabler:download" class="ic"></iconify-icon> Download latest</a>
+    <a class="btn btn-ghost" href="./editor.html"><iconify-icon icon="tabler:flask" class="ic"></iconify-icon> Try the probe editor</a>
+    <a class="btn btn-ghost" href="./docs.html"><iconify-icon icon="tabler:book" class="ic"></iconify-icon> Read the docs</a>
+  </div>
+  <div class="hero-stats">
+    <span class="hero-stat"><b>47</b>&nbsp;probes</span>
+    <span class="hero-stat-dot">·</span>
+    <span class="hero-stat"><b>5</b>&nbsp;categories</span>
+    <span class="hero-stat-dot">·</span>
+    <span class="hero-stat"><b>3</b>&nbsp;platforms</span>
+    <span class="hero-stat-dot">·</span>
+    <span class="hero-stat"><b>MIT</b>&nbsp;licensed</span>
+  </div>
+</header>
+
+<section class="section container">
+  <h2>What it catches</h2>
+  <p class="lead">Five categories, 47 carefully-tuned probes. Each one targets a specific behavior that's hard to fake.</p>
+  <div class="grid">
+    <div class="feature">
+      <span class="icon-box"><iconify-icon icon="tabler:fingerprint"></iconify-icon></span>
+      <h3>Identity</h3>
+      <p>Who the endpoint claims to be, knowledge cutoff, creator, training methodology, and whether it corrects false claims like "I am ChatGPT…".</p>
+    </div>
+    <div class="feature">
+      <span class="icon-box"><iconify-icon icon="tabler:shield-check"></iconify-icon></span>
+      <h3>Jailbreak resistance</h3>
+      <p>DAN, "ignore previous instructions", grandma exploit, base64-encoded request, evil-twin roleplay.</p>
+    </div>
+    <div class="feature">
+      <span class="icon-box"><iconify-icon icon="tabler:world"></iconify-icon></span>
+      <h3>Politically sensitive (CN)</h3>
+      <p>Tiananmen, Taiwan, Xinjiang, Hong Kong, Xi, Falun Gong, Pooh — TH/ZH/EN. Catches Chinese-trained models behind a proxy.</p>
+    </div>
+    <div class="feature">
+      <span class="icon-box"><iconify-icon icon="tabler:mask"></iconify-icon></span>
+      <h3>Social-engineering / leak</h3>
+      <p>Flattery + framework probe, system-prompt leak, infra probe, implicit-owner traps, forced multiple-choice, sentence-completion, wrapper trap.</p>
+    </div>
+    <div class="feature">
+      <span class="icon-box"><iconify-icon icon="tabler:bolt"></iconify-icon></span>
+      <h3>Capability sanity</h3>
+      <p>Math chain-of-thought, strict JSON, Thai language, Unicode round-trip, long-context needle-in-haystack.</p>
+    </div>
+    <div class="feature">
+      <span class="icon-box"><iconify-icon icon="tabler:target-arrow"></iconify-icon></span>
+      <h3>Golden similarity</h3>
+      <p>Each response is compared against 5 reference samples per probe via character-bigram cosine similarity. Language-agnostic, no tokenizer needed.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section container">
+  <h2>How it works</h2>
+  <div class="grid">
+    <div class="feature">
+      <span class="icon-box"><iconify-icon icon="tabler:transfer"></iconify-icon></span>
+      <h3>1:1 traffic emulation</h3>
+      <p>Every request matches real <code>claude-cli</code> traffic: <code>User-Agent</code>, <code>X-Stainless-*</code>, <code>anthropic-beta</code>, system block, full <code>tools</code> array, and <code>sha256(api_key)</code> in metadata.</p>
+    </div>
+    <div class="feature">
+      <span class="icon-box"><iconify-icon icon="tabler:package"></iconify-icon></span>
+      <h3>Sandbox auto-fallback</h3>
+      <p>If the model replies with only a <code>tool_use</code> turn, the chat IPC silently retries without tools so the verdict has usable text to match.</p>
+    </div>
+    <div class="feature">
+      <span class="icon-box"><iconify-icon icon="tabler:rocket"></iconify-icon></span>
+      <h3>Parallel + resumable</h3>
+      <p>Runs 4 probes in flight. Stop mid-run → press <kbd>↻ Resume</kbd> to continue only the remaining. Final report combines everything.</p>
+    </div>
+    <div class="feature">
+      <span class="icon-box"><iconify-icon icon="tabler:cloud-upload"></iconify-icon></span>
+      <h3>Auto-finish</h3>
+      <p>When a run finishes, the Markdown report is silently saved to <code>reports/</code> and published to a paste host. URL on clipboard.</p>
+    </div>
+    <div class="feature">
+      <span class="icon-box"><iconify-icon icon="tabler:share"></iconify-icon></span>
+      <h3>Probe pack import/export</h3>
+      <p>Share probe sets as portable JSON. Anyone can drop a pack into the app — no fork, no PR, no build step required.</p>
+    </div>
+    <div class="feature">
+      <span class="icon-box"><iconify-icon icon="tabler:gauge"></iconify-icon></span>
+      <h3>Latency + shape fingerprint</h3>
+      <p>Coefficient-of-variation flags uniform proxies. Avg chars-per-output-token and stop_reason mix add a signal beyond keywords.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section container">
+  <h2>Download</h2>
+  <p class="lead">Pre-built binaries on every release. Source build is also one command (<code>./run.sh</code> or <code>run.bat</code>).</p>
+  <div class="platforms">
+    <a class="platform" href="https://github.com/botnick/claude-verifier/releases/latest" target="_blank" rel="noopener">
+      <iconify-icon icon="tabler:brand-apple" class="glyph"></iconify-icon>
+      <h3>macOS</h3>
+      <span class="file">arm64.dmg · x64.dmg</span>
+      <span class="btn btn-small btn-ghost">Download .dmg</span>
+    </a>
+    <a class="platform" href="https://github.com/botnick/claude-verifier/releases/latest" target="_blank" rel="noopener">
+      <iconify-icon icon="tabler:brand-windows" class="glyph"></iconify-icon>
+      <h3>Windows</h3>
+      <span class="file">win-x64.exe (NSIS)</span>
+      <span class="btn btn-small btn-ghost">Download .exe</span>
+    </a>
+    <a class="platform" href="https://github.com/botnick/claude-verifier/releases/latest" target="_blank" rel="noopener">
+      <iconify-icon icon="simple-icons:linux" class="glyph"></iconify-icon>
+      <h3>Linux</h3>
+      <span class="file">AppImage · deb · tar.gz</span>
+      <span class="btn btn-small btn-ghost">Download</span>
+    </a>
+  </div>
+  <div class="note-card">
+    <div class="note-head">
+      <iconify-icon icon="tabler:info-circle"></iconify-icon>
+      <h4>First-run setup</h4>
+    </div>
+    <div class="note-body">
+      <div class="note-os">
+        <iconify-icon icon="tabler:brand-apple"></iconify-icon>
+        <div>
+          <b>macOS</b> — after dragging the app into <code>/Applications/</code>, open Terminal and run once:
+          <pre><code>xattr -cr "/Applications/Claude Verifier.app"</code></pre>
+        </div>
+      </div>
+      <div class="note-os">
+        <iconify-icon icon="tabler:brand-windows"></iconify-icon>
+        <div>
+          <b>Windows</b> — SmartScreen will warn "Windows protected your PC". Click <b>More info → Run anyway</b>.
+        </div>
+      </div>
+      <div class="note-os">
+        <iconify-icon icon="simple-icons:linux"></iconify-icon>
+        <div>
+          <b>Linux</b> — make the AppImage executable: <code>chmod +x Claude*.AppImage</code>. The .deb installs with <code>sudo dpkg -i Claude*.deb</code>.
+        </div>
+      </div>
+      <p class="note-hint">Both macOS and Windows show these warnings for any open-source desktop app that isn't signed with a paid Apple / Microsoft developer certificate. The workarounds are one-time per install.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section container">
+  <h2>Share probes with the community</h2>
+  <p class="lead">
+    The project gets stronger every time someone adds a high-signal probe.
+    Anyone who's caught a sneaky proxy in the wild can package the prompt that
+    caught it and drop it back into the app — no fork, no PR, no build.
+  </p>
+  <div class="grid" style="grid-template-columns: 1fr 1fr">
+    <div class="feature">
+      <span class="icon">⬇</span>
+      <h3>Export from the app</h3>
+      <p>Tick the probes you want to ship → catalog header → <kbd>⬇ Export</kbd>. Save the JSON. Share anywhere — GitHub Gist, Discussions, your blog, Discord.</p>
+    </div>
+    <div class="feature">
+      <span class="icon">⬆</span>
+      <h3>Import from anyone</h3>
+      <p>Click <kbd>⬆ Import</kbd>, pick someone else's pack. New probes appear in your catalog with a <code>custom</code> badge and persist across restarts.</p>
+    </div>
+  </div>
+  <div style="text-align: center; margin-top: 32px">
+    <a class="btn btn-primary" href="./editor.html">🧪 &nbsp;Open the probe editor</a>
+  </div>
+</section>
+
+<footer class="footer container">
+  <p>MIT licensed · <a href="https://github.com/botnick/claude-verifier">GitHub</a> · <a href="https://github.com/botnick/claude-verifier/releases">Releases</a> · <a href="https://github.com/botnick/claude-verifier/discussions">Discussions</a> · <a href="https://github.com/botnick/claude-verifier/issues">Issues</a></p>
+</footer>
+
+</body>
+</html>
