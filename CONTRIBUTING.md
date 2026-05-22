@@ -4,6 +4,10 @@ The whole point of this project is **community-curated probes**. The more
 high-signal questions we have, the harder it gets for a proxy to fake being
 Claude. **Adding a probe is the highest-leverage contribution.**
 
+> The fastest way to author and share probes is the web editor:
+> **https://botnick.github.io/claude-verifier/editor.html**
+> No clone, no install — edits stay in your browser until you export.
+
 ## The fastest path: share a probe pack
 
 You don't need to clone the repo, build, or open a PR to share probes.

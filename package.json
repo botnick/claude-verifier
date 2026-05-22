@@ -20,7 +20,7 @@
     "open-source"
   ],
   "main": "main.js",
-  "homepage": "https://github.com/botnick/claude-verifier",
+  "homepage": "https://botnick.github.io/claude-verifier/",
   "repository": {
     "type": "git",
     "url": "https://github.com/botnick/claude-verifier.git"

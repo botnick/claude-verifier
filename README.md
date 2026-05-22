@@ -347,6 +347,14 @@ Vanilla JS + plain CSS. Edits are reflected immediately on relaunch.
 - This tool is for verifying services you have authorization to test (your
   own accounts, vendor evaluations, internal QA).
 
+## Links
+
+- 🌐 **Site & probe editor** — https://botnick.github.io/claude-verifier/
+- 📦 **Releases** — https://github.com/botnick/claude-verifier/releases
+- 💬 **Discussions** (share probe packs) — https://github.com/botnick/claude-verifier/discussions
+- 🐛 **Issues** — https://github.com/botnick/claude-verifier/issues
+- 📖 **Docs** — https://botnick.github.io/claude-verifier/docs.html
+
 ## License
 
 MIT — see [LICENSE](./LICENSE).
